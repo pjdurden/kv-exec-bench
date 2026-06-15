@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kv-exec-bench"
+version = "0.1.0"
+description = "Executable-correctness evaluation for generation under KV-cache compression (code pass@1 + tool/JSON-schema validity)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Prajjwal Chittori" }]
+keywords = ["kv-cache", "kvpress", "llm", "evaluation", "benchmark", "tool-calling", "code-generation"]
+dependencies = [
+    "pandas>=2.0",
+    "jsonschema>=4.0",
+]
+
+[project.optional-dependencies]
+# Pulls in the model stack. kvpress pins transformers<5.3; install in its own env.
+run = [
+    "kvpress",
+    "torch",
+    "transformers<5.3",
+    "datasets",
+]
+dev = [
+    "pytest>=7",
+    "black==24.*",
+    "isort==5.*",
+    "flake8==7.*",
+]
+
+[project.scripts]
+kv-exec-bench = "kv_exec_bench.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["kv_exec_bench*"]
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+line_length = 120
