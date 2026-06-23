@@ -1,5 +1,7 @@
 # kv-exec-bench
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20805561.svg)](https://doi.org/10.5281/zenodo.20805561)
+
 executable-correctness eval for text generation under KV-cache compression.
 
 the eval suites people use to validate KV compression (RULER, LongBench, Loogle, InfiniteBench, NIAH,
@@ -51,7 +53,7 @@ a 0.5B model, so the executable contrast needs a capable code model on a GPU.) f
 ## paper
 
 a short writeup of this result lives in [`paper/`](paper/) (CPU-only study introducing the benchmark).
-arXiv: _TBD_.
+preprint (Zenodo): [10.5281/zenodo.20805561](https://doi.org/10.5281/zenodo.20805561).
 
 ## install
 
