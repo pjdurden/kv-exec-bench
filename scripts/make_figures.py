@@ -42,10 +42,9 @@ def make_contrast_figure(df, task, standard_metric, exec_metric, out_path):
         ax.set_ylim(-0.02, 1.02)
         ax.grid(True, alpha=0.3)
         ax.legend()
-    fig.suptitle(f"{task}: shallow metric holds, structural correctness degrades", y=1.02)
     fig.tight_layout()
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
-    fig.savefig(out_path, dpi=150)
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
     return fig
 
 
