@@ -33,7 +33,7 @@ def _tool_row(predicted, name="get_weather", arguments=None, schema=None):
 def test_tool_call_perfect():
     df = pd.DataFrame([_tool_row('{"name": "get_weather", "arguments": {"city": "Paris"}}')])
     s = scorers.score_tool_call(df)["tool_call"]
-    assert s == {"json_valid": 1.0, "name_match": 1.0, "schema_valid": 1.0, "args_exact": 1.0}
+    assert s == {"json_valid": 1.0, "name_match": 1.0, "schema_valid": 1.0, "args_exact": 1.0, "name_substring": 1.0}
 
 
 def test_tool_call_trailing_prose_still_parses():

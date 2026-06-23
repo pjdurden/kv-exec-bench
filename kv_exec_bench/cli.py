@@ -19,19 +19,52 @@ Examples
 import argparse
 import json
 
+import pandas as pd
+
 from . import datasets, runner, scorers
+from .sweep import run_sweep
+
+
+def _csv_list(s):
+    return [x.strip() for x in s.split(",") if x.strip()]
 
 
 def main(argv=None):
     p = argparse.ArgumentParser(prog="kv-exec-bench", description=__doc__)
-    p.add_argument("benchmark", choices=["code_exec", "tool_call"])
-    p.add_argument("--model", required=True, help="HF model id or local path")
+    p.add_argument("benchmark", choices=["code_exec", "tool_call", "sweep"])
+    p.add_argument("--model", help="HF model id or local path (single-run modes)")
     p.add_argument("--press", default="none", help="KVPress press name (e.g. SnapKV, StreamingLLM) or 'none'")
     p.add_argument("--compression-ratio", type=float, default=0.0)
     p.add_argument("--device", default=None, help="torch device, e.g. cuda:0 or cpu")
     p.add_argument("--max-context-length", type=int, default=None)
-    p.add_argument("--limit", type=int, default=None, help="code_exec only: cap number of HumanEval problems")
+    p.add_argument("--limit", type=int, default=None, help="cap number of problems/rows per task")
+    # sweep-only args (comma-separated lists)
+    p.add_argument("--models", type=_csv_list, help="sweep: comma-separated model ids")
+    p.add_argument("--presses", type=_csv_list, help="sweep: comma-separated press names")
+    p.add_argument("--ratios", type=_csv_list, help="sweep: comma-separated compression ratios")
+    p.add_argument("--tasks", type=_csv_list, help="sweep: comma-separated tasks (tool_call,code_exec)")
+    p.add_argument("--out", default=None, help="sweep: path to write the results CSV")
     args = p.parse_args(argv)
+
+    if args.benchmark == "sweep":
+        rows = run_sweep(
+            models=args.models,
+            presses=args.presses,
+            ratios=[float(r) for r in args.ratios],
+            tasks=args.tasks,
+            limit=args.limit,
+            device=args.device,
+        )
+        df_out = pd.DataFrame(rows)
+        if args.out:
+            df_out.to_csv(args.out, index=False)
+            print(f"wrote {len(df_out)} rows to {args.out}")
+        else:
+            print(df_out.to_csv(index=False))
+        return
+
+    if not args.model:
+        p.error("--model is required for code_exec/tool_call")
 
     if args.benchmark == "code_exec":
         df = datasets.build_code_exec_df(limit=args.limit)

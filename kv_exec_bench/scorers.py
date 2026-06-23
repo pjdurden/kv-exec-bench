@@ -18,6 +18,7 @@ prompt the model completed (`context`), the model output (`predicted_answer`), a
   * score_tool_call  — JSON parse + JSON-Schema validity + exactness; runs NO code.
 """
 
+import difflib
 import json
 import os
 import subprocess
@@ -158,11 +159,14 @@ def score_tool_call(df: pd.DataFrame) -> dict:
     """
     scores = {}
     for task, df_task in df.groupby("task"):
-        agg = {"json_valid": 0, "name_match": 0, "schema_valid": 0, "args_exact": 0}
+        agg = {"json_valid": 0, "name_match": 0, "schema_valid": 0, "args_exact": 0, "name_substring": 0}
         n = len(df_task)
         for _, row in df_task.iterrows():
             spec = json.loads(row["answer"])  # {"name", "arguments", "schema"}
-            call = extract_json_object(row["predicted_answer"] or "")
+            pred_text = row["predicted_answer"] or ""
+            # Lenient string anchor: did the gold tool name appear at all, JSON valid or not?
+            agg["name_substring"] += int(spec["name"] in pred_text)
+            call = extract_json_object(pred_text)
             if not isinstance(call, dict):
                 continue
             agg["json_valid"] += 1
@@ -175,4 +179,27 @@ def score_tool_call(df: pd.DataFrame) -> dict:
                 pass
             agg["args_exact"] += int(args == spec["arguments"])
         scores[str(task)] = {k: round(v / n, 4) for k, v in agg.items()}
+    return scores
+
+
+# --------------------------------------------------------------------------------------------------
+# code string anchor: edit-similarity vs canonical solution (the "standard metric" baseline)
+# --------------------------------------------------------------------------------------------------
+
+
+def score_code_string(df: pd.DataFrame) -> dict:
+    """String-overlap anchor for code: edit-similarity of completion vs canonical solution, per task.
+
+    This is the standard-metric baseline for the contrast figure. It runs no code and needs no GPU;
+    it reads `canonical_solution` from each row's `answer` JSON and compares it to `predicted_answer`
+    with difflib's ratio (0..1).
+    """
+    scores = {}
+    for task, df_task in df.groupby("task"):
+        sims = []
+        for _, row in df_task.iterrows():
+            canonical = json.loads(row["answer"]).get("canonical_solution", "")
+            pred = row["predicted_answer"] or ""
+            sims.append(difflib.SequenceMatcher(None, pred, canonical).ratio())
+        scores[str(task)] = {"edit_sim": round(sum(sims) / len(sims), 4)}
     return scores

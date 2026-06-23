@@ -32,16 +32,26 @@ with secrets in the env.
 
 the tool catalog is shared across requests, so a prefill press compresses it once and answers every
 request from the compressed cache. that's where a dropped or garbled tool definition turns into an
-invalid call. quick CPU run, Qwen2.5-0.5B-Instruct, the inline `tool_call` set:
+invalid call. a single CPU box (AMD Ryzen 5 5500U, no GPU), Qwen2.5-0.5B-Instruct, the inline
+`tool_call` set, `json_valid` (did it parse as a call?) vs `schema_valid` (is the call correct?):
 
-| condition       | json_valid | name_match | schema_valid | args_exact |
-|-----------------|-----------:|-----------:|-------------:|-----------:|
-| no press        | 1.00       | 1.00       | 1.00         | 0.50       |
-| SnapKV, cr 0.5  | 1.00       | 0.50       | 0.25         | 0.00       |
+| press             | json_valid (base→0.75) | schema_valid (base→0.75) |
+|-------------------|:----------------------:|:------------------------:|
+| no press (base)   | 1.00                   | 0.78                     |
+| SnapKV            | 1.00 → 0.89            | 0.44 → 0.11              |
+| Knorm             | 1.00 → 1.00            | 0.89 → 0.33              |
+| ExpectedAttention | 1.00 → 1.00            | 0.56 → 0.33              |
 
-valid JSON survives the compression, tool selection and schema-valid args don't. a string-overlap
-metric never sees that. it's a tiny smoke run, not a leaderboard. reproduce with the commands below
-and scale up the model and the dataset.
+for Knorm and ExpectedAttention the parse rate never drops below 1.00 while schema validity falls by
+half or more: the model keeps emitting things that look like tool calls, but they are increasingly the
+wrong calls. a string-overlap or parse-only metric never sees that. (`code_exec` floors at pass@1=0 on
+a 0.5B model, so the executable contrast needs a capable code model on a GPU.) full grid + figure:
+`scripts/make_figures.py results/results.csv`.
+
+## paper
+
+a short writeup of this result lives in [`paper/`](paper/) (CPU-only study introducing the benchmark).
+arXiv: _TBD_.
 
 ## install
 

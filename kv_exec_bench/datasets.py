@@ -42,7 +42,9 @@ def build_code_exec_df(limit: int | None = None) -> pd.DataFrame:
                 "context": r["prompt"],  # function signature + docstring; the model completes this
                 "question": "",
                 "answer_prefix": "",
-                "answer": json.dumps({"test": r["test"], "entry_point": r["entry_point"]}),
+                "answer": json.dumps(
+                    {"test": r["test"], "entry_point": r["entry_point"], "canonical_solution": r["canonical_solution"]}
+                ),
                 "task": "humaneval",
                 "max_new_tokens": CODE_EXEC_MAX_NEW_TOKENS,
             }
