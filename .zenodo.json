@@ -1,0 +1,19 @@
+{
+  "title": "kv-exec-bench: Executable-Correctness Evaluation for KV-Cache Compression",
+  "description": "KV-cache compression methods are evaluated almost entirely with metrics that score token or string overlap, retrieval hits, or an extracted final answer, none of which check whether generated output runs or whether a generated tool call is well-formed. kv-exec-bench measures the two missing quantities, code unit-test pass@1 and tool-call JSON-Schema validity, under KV compression, built on top of NVIDIA kvpress as a dependency. In a small CPU-only study on a 0.5B model, the rate of parseable tool calls stays near 100 percent across compression ratios while the rate of schema-valid calls falls by half or more, a regime a parse-only or string-only metric would report as nearly lossless.",
+  "upload_type": "software",
+  "license": "Apache-2.0",
+  "creators": [
+    { "name": "Chittori, Prajjwal", "orcid": "0009-0000-7410-8290", "affiliation": "Independent Researcher" }
+  ],
+  "keywords": [
+    "KV-cache compression",
+    "LLM inference",
+    "tool calling",
+    "function calling",
+    "structured generation",
+    "JSON schema",
+    "benchmark",
+    "efficient inference"
+  ]
+}

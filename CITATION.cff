@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this benchmark, please cite it."
+title: "kv-exec-bench: Executable-Correctness Evaluation for KV-Cache Compression"
+authors:
+  - family-names: Chittori
+    given-names: Prajjwal
+    email: prajjwalchittoriwork@gmail.com
+    orcid: "https://orcid.org/0009-0000-7410-8290"
+    affiliation: "Independent Researcher"
+abstract: >-
+  KV-cache compression methods are evaluated almost entirely with metrics that score token or
+  string overlap, retrieval hits, or an extracted final answer, none of which check whether
+  generated output runs or whether a generated tool call is well-formed. kv-exec-bench measures the
+  two missing quantities, code unit-test pass@1 and tool-call JSON-Schema validity, under KV
+  compression, built on top of NVIDIA kvpress as a dependency.
+keywords:
+  - KV-cache compression
+  - LLM inference
+  - tool calling
+  - function calling
+  - structured generation
+  - JSON schema
+  - benchmark
+  - efficient inference
+license: Apache-2.0
+repository-code: "https://github.com/pjdurden/kv-exec-bench"
+type: software
+version: "0.1.0"
